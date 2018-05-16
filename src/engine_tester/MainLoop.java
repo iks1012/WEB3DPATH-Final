@@ -6,13 +6,9 @@ import render_engine.DisplayManager;
 import render_engine.Loader;
 import render_engine.RawModel;
 import render_engine.Renderer;
+import shaders.StaticShader;
 
-/**
- * This class contains the main method and is used to test the engine.
- *
- * @author Karl
- *
- */
+
 public class MainLoop {
 
 
@@ -27,27 +23,32 @@ public class MainLoop {
         DisplayManager.createDisplay();
         Loader loader = new Loader();
         Renderer renderer = new Renderer();
+        StaticShader shader = new StaticShader();
 
         float[] vertices = {
-                // Left bottom triangle
-                -0.5f, 0.5f, 0f,
-                -0.5f, -0.5f, 0f,
-                0.5f, -0.5f, 0f,
-                // Right top triangle
-                0.5f, -0.5f, 0f,
-                0.5f, 0.5f, 0f,
-                -0.5f, 0.5f, 0f
+                -0.5f,0.5f,0,   //V0
+                -0.5f,-0.5f,0,  //V1
+                0.5f,-0.5f,0,   //V2
+                0.5f,0.5f,0     //V3
         };
 
-        RawModel model = loader.loadToVAO(vertices);
+        int[] indices = {
+                0,1,3,  //Top left triangle (V0,V1,V3)
+                3,1,2   //Bottom right triangle (V3,V1,V2)
+        };
 
-        while (!Display.isCloseRequested()) {
-            // game logic
+        RawModel model = loader.loadToVAO(vertices,indices);
+
+        while(!Display.isCloseRequested()){
+            //game logic
             renderer.prepare();
+            shader.start();
             renderer.render(model);
+            shader.stop();
             DisplayManager.updateDisplay();
         }
 
+        shader.cleanUp();
         loader.cleanUp();
         DisplayManager.closeDisplay();
     }
